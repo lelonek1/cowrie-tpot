@@ -1,6 +1,6 @@
-# Cowrie Dockerfile by AV 
+# Cowrie Dockerfile by AV / MO 
 #
-# VERSION 0.43
+# VERSION 16.03.1
 FROM ubuntu:14.04.3
 MAINTAINER AV
 
@@ -19,7 +19,6 @@ RUN git clone https://github.com/micheloosterhof/cowrie.git /opt/cowrie
 RUN addgroup --gid 2000 tpot 
 RUN adduser --system --no-create-home --shell /bin/bash --uid 2000 --disabled-password --disabled-login --gid 2000 tpot
 RUN mkdir -p /data/cowrie/log/tty/ /data/cowrie/downloads/ /data/cowrie/keys/ /data/cowrie/misc/ /var/run/cowrie/
-#RUN echo "root:0:123456" > /data/cowrie/misc/userdb.txt
 ADD userdb.txt /data/cowrie/misc/userdb.txt
 RUN chmod 760 -R /data && chown tpot:tpot -R /data && chown tpot:tpot /var/run/cowrie
 ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
@@ -29,6 +28,12 @@ ADD setup.sql /root/
 # Setup mysql
 RUN sed -i 's#127.0.0.1#0.0.0.0#' /etc/mysql/my.cnf
 RUN service mysql start && /usr/bin/mysqladmin -u root password "gr8p4$w0rd" && /usr/bin/mysql -u root -p"gr8p4$w0rd" < /root/setup.sql
+
+# Setup ewsposter
+RUN apt-get install -y python-lxml python-requests
+RUN git clone https://github.com/rep/hpfeeds.git /opt/hpfeeds && cd /opt/hpfeeds && python setup.py install && \
+git clone https://github.com/armedpot/ewsposter.git /opt/ewsposter
+RUN mkdir -p /opt/ewsposter/spool /opt/ewsposter/log
 
 # Clean up 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
