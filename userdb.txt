@@ -1,4 +1,4 @@
-admin:0:*
+admin:0:
 admin:0:1234
 admin:0:admin
 admin:0:monkey
@@ -17,7 +17,7 @@ mike:0:mike
 mike:0:password
 oracle:0:oracle
 PlcmSpIp:0:PlcmSpIp
-root:0:*
+root:0:
 root:0:123456
 root:0:123qwe
 root:0:abc123
