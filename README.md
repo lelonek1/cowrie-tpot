@@ -23,4 +23,4 @@ This will make sure that the docker container is started with the appropriate ri
 
 # Cowrie Dashboard
 
-![Cowrie Dashboard](doc/dashboard.png)
+![Cowrie Dashboard](https://raw.githubusercontent.com/dtag-dev-sec/cowrie/master/doc/dashboard.png)
