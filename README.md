@@ -20,3 +20,7 @@ Using upstart, copy the file `upstart/cowrie.conf` to `/etc/init/cowrie.conf` an
     service cowrie start
 
 This will make sure that the docker container is started with the appropriate rights and port mappings. Further, it autostarts during boot.
+
+# Cowrie Dashboard
+
+![Cowrie Dashboard](doc/dashboard.png)
