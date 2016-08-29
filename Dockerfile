@@ -1,43 +1,52 @@
 # Cowrie Dockerfile by AV / MO 
 #
-# VERSION 16.03.2
-FROM ubuntu:14.04.4
-MAINTAINER AV
+# VERSION 16.10
+FROM debian:jessie
+MAINTAINER AV / MO
+
+# Include dist
+ADD dist/ /root/dist/
 
 # Setup apt
-RUN apt-get update -y && \
-    apt-get dist-upgrade -y
 ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
 
-# Install packages
-RUN apt-get install -y supervisor python git python-twisted python-pycryptopp mysql-server python-mysqldb python-pyasn1 python-zope.interface
-
-# Install cowrie from git
-RUN git clone https://github.com/micheloosterhof/cowrie.git /opt/cowrie
-
-# Setup user, groups and configs
-RUN addgroup --gid 2000 tpot && \
-    adduser --system --no-create-home --shell /bin/bash --uid 2000 --disabled-password --disabled-login --gid 2000 tpot && \
-    mkdir -p /var/run/cowrie/
-ADD userdb.txt /opt/cowrie/misc/userdb.txt
-RUN chown tpot:tpot /var/run/cowrie
-ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-ADD cowrie.cfg /opt/cowrie/
-ADD setup.sql /root/
-
-# Setup mysql
-RUN sed -i 's#127.0.0.1#0.0.0.0#' /etc/mysql/my.cnf && \
-    service mysql start && /usr/bin/mysqladmin -u root password "gr8p4$w0rd" && /usr/bin/mysql -u root -p"gr8p4$w0rd" < /root/setup.sql
+# Get and install dependencies & packages
+    apt-get install -y supervisor python git python-twisted python-pycryptopp mysql-server python-mysqldb python-pyasn1 python-zope.interface \
 
 # Setup ewsposter
-RUN apt-get install -y python-lxml python-requests && \
-    git clone https://github.com/rep/hpfeeds.git /opt/hpfeeds && cd /opt/hpfeeds && python setup.py install && \
+                       python-lxml python-requests && \
+    git clone https://github.com/rep/hpfeeds.git /opt/hpfeeds && \
+      cd /opt/hpfeeds && \
+      python setup.py install && \
     git clone https://github.com/armedpot/ewsposter.git /opt/ewsposter && \
-    mkdir -p /opt/ewsposter/spool /opt/ewsposter/log
+    mkdir -p /opt/ewsposter/spool /opt/ewsposter/log && \
 
-# Clean up 
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    rm /root/setup.sql
+# Install cowrie from git
+    git clone https://github.com/micheloosterhof/cowrie.git /opt/cowrie && \
+
+# Clean up apt
+    apt-get remove git -y && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+
+# Setup user, groups and configs
+    addgroup --gid 2000 tpot && \
+    adduser --system --no-create-home --shell /bin/bash --uid 2000 --disabled-password --disabled-login --gid 2000 tpot && \
+    mkdir -p /var/run/cowrie/ /opt/cowrie/misc/ && \
+    mv /root/dist/userdb.txt /opt/cowrie/misc/userdb.txt && \
+    chown tpot:tpot /var/run/cowrie && \
+    mv /root/dist/supervisord.conf /etc/supervisor/conf.d/supervisord.conf && \
+    mv /root/dist/cowrie.cfg /opt/cowrie/ && \
+
+# Setup mysql
+    sed -i 's#127.0.0.1#0.0.0.0#' /etc/mysql/my.cnf && \
+    service mysql start && /usr/bin/mysqladmin -u root password "gr8p4$w0rd" && /usr/bin/mysql -u root -p"gr8p4$w0rd" < /root/dist/setup.sql && \
+
+# Clean up dist
+    rm -rf /root/dist
 
 # Start supervisor
 CMD ["/usr/bin/supervisord","-c","/etc/supervisor/supervisord.conf"]
