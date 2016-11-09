@@ -13,7 +13,7 @@ RUN apt-get update -y && \
     apt-get upgrade -y && \
 
 # Get and install dependencies & packages
-    apt-get install -y supervisor python git python-configparser python-twisted python-pycryptopp mysql-server python-mysqldb python-pyasn1 python-zope.interface \
+    apt-get install -y supervisor python git python-configparser python-twisted python-pycryptopp mysql-server python-mysqldb python-pyasn1 python-tftpy python-zope.interface \
 
 # Setup ewsposter
                        python-lxml python-requests && \
