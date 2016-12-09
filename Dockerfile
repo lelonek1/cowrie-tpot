@@ -10,22 +10,19 @@ ADD dist/ /root/dist/
 # Setup apt
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update -y && \
-    apt-get upgrade -y && \
+    #apt-get upgrade -y && \
 
 # Get and install dependencies & packages
-    apt-get install -y supervisor python git python-configparser python-twisted python-pycryptopp mysql-server python-mysqldb python-pyasn1 python-tftpy python-zope.interface \
-
-# Setup ewsposter
-                       python-lxml python-requests && \
-    git clone https://github.com/rep/hpfeeds.git /opt/hpfeeds && \
-      cd /opt/hpfeeds && \
-      python setup.py install && \
-    git clone https://github.com/armedpot/ewsposter.git /opt/ewsposter && \
-    mkdir -p /opt/ewsposter/spool /opt/ewsposter/log && \
+    apt-get install --no-install-recommends -y supervisor python git libmpfr-dev libssl-dev \
+        libmpc-dev libffi-dev gcc g++ libpython-dev ca-certificates curl python-pip && \
 
 # Install cowrie from git
-    git clone https://github.com/micheloosterhof/cowrie.git /opt/cowrie && \
-
+    git clone https://github.com/lelonek1/cowrie.git --branch telnetNegotiationErrors --single-branch --depth 1 /opt/cowrie && \
+    
+# Install Python dependencies
+    #pip install -U pip && \
+    pip install -r /opt/cowrie/requirements.txt && \
+    
 # Clean up apt
     apt-get remove git -y && \
     apt-get autoremove -y && \
@@ -40,10 +37,6 @@ RUN apt-get update -y && \
     chown tpot:tpot /var/run/cowrie && \
     mv /root/dist/supervisord.conf /etc/supervisor/conf.d/supervisord.conf && \
     mv /root/dist/cowrie.cfg /opt/cowrie/ && \
-
-# Setup mysql
-    sed -i 's#127.0.0.1#0.0.0.0#' /etc/mysql/my.cnf && \
-    service mysql start && /usr/bin/mysqladmin -u root password "gr8p4$w0rd" && /usr/bin/mysql -u root -p"gr8p4$w0rd" < /root/dist/setup.sql && \
 
 # Clean up dist
     rm -rf /root/dist
